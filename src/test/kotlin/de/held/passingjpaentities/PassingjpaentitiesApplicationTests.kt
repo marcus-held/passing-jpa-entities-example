@@ -46,7 +46,7 @@ class PassingjpaentitiesApplicationTests {
         fun `user is not updated when passing a detached entity`() {
             log.info("Find user")
             val user = userRepository.findByIdOrNull(id)!!
-            // user is in a detached state since we are outside of a JPA session
+            // user is in a detached state since we are outside of a persistence context
             log.info("Call update username")
             updateUsernameService.updateUsername(user, "updated")
 
