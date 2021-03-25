@@ -1,10 +1,7 @@
 package de.held.passingjpaentities
 
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.beans.factory.annotation.Autowired
@@ -78,6 +75,29 @@ class PassingjpaentitiesApplicationTests {
         fun `Call banUser to check for multiple selects`() {
             banUserService.banUser(username)
             // I don't assert here, since it's unhandy to figure out which statements were executed
+        }
+
+    }
+
+    @Nested
+    inner class MandatoryTransaction {
+
+        @Test
+        fun `Calling update username without persistent context throws an exception`() {
+            val user = userRepository.findByIdOrNull(id)!!
+            assertThrows<Exception> { updateUsernameService.updateUsernameWithMandatoryTransaction(user, "updated") }
+        }
+
+        @Test
+        fun `Calling update username with transaction updates the user`() {
+            transactionTemplate.execute {
+                val user = userRepository.findByIdOrNull(id)!!
+                updateUsernameService.updateUsernameWithMandatoryTransaction(user, "updated")
+            }
+
+            Assertions.assertThat(userRepository.findByIdOrNull(id)!!.username)
+                .isEqualTo("updated")
+
         }
 
     }
